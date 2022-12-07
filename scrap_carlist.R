@@ -20,9 +20,13 @@ scrap<-function(df,page_num){
   carlist_node <- carlists_html%>%html_nodes(".listing")
   for(car in carlist_node){
     car_price <- car %>% html_node(".listing__price") %>% html_text()
+    car_rating <- car %>% html_node(".listing__rating")%>%html_elements(".space--nowrap")%>%html_text()
+    if(length(car_rating)<=0){
+      car_rating<-"NA"
+    }
     car_props <- car %>% html_attrs()
-    new_car<-c(car_props[props],car_price)
-    print(paste(new_car["data-listing-id"],":",car_price))
+    new_car<-c(car_props[props],car_price,car_rating)
+    print(paste(new_car["data-listing-id"],":",car_price," rating:",car_rating))
     df_cars<-rbind(df_cars,new_car)
   }
   colnames(df_cars)<-props
@@ -36,13 +40,7 @@ while(current<=max_page_number){
 }
 
 View(df_cars)
+columns_names<-c("data_listing_id", "data_title", "data_display_title", "data_url", "data_installment", "data_image_src", "data_compare_image", "data_make", "data_model", "data_year", "data_mileage", "data_transmission", "data_ad_type", "data_variant", "data_seller_id", "data_profile_id", "data_listing_trusted", "data_dealer_isverified", "data_view_store", "data_country_code", "data_vehicle_type","listing_price","listing_rating")
+colnames(df_cars)<-columns_names
 #colnames(df)[23]<-"listing-price"
-write.csv(df_cars,"carlist_2022Nov.csv", row.names = TRUE)
-
-
-
-
-
-
-
-
+write.csv(df_cars,"carlist.csv", row.names = TRUE)
